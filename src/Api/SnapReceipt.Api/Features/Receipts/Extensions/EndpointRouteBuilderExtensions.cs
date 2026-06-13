@@ -1,0 +1,13 @@
+using SnapReceipt.Api.Features.Receipts;
+
+namespace SnapReceipt.Api.Extensions;
+
+public static class EndpointRouteBuilderExtensions
+{
+    public static IEndpointRouteBuilder MapReceiptEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/api/receipts").WithTags("Receipts");
+        GetReceiptsEndpoint.Map(group);
+        return app;
+    }
+}
