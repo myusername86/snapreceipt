@@ -10,7 +10,7 @@ builder.Services.AddProblemDetails();
 const string FrontendCors = "frontend";
 builder.Services.AddCors(options =>
     options.AddPolicy(FrontendCors, policy => policy
-        .WithOrigins("http://localhost:5173")
+        .WithOrigins("http://localhost:5173","https://thankful-dune-03b097403.7.azurestaticapps.net")
         .AllowAnyHeader()
         .AllowAnyMethod()));
 
