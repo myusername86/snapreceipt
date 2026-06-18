@@ -1,19 +1,18 @@
 namespace SnapReceipt.Api.Features.Receipts;
 
+/// <summary>GET /api/receipts — returns the user's receipts from Cosmos DB.</summary>
 public static class GetReceiptsEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
     {
-        group.MapGet("/", Handle).WithName("GetReceipts").Produces<IReadOnlyList<Receipt>>();
+        group.MapGet("/", Handle)
+            .WithName("GetReceipts")
+            .Produces<IReadOnlyList<Receipt>>();
     }
 
-    private static IResult Handle()
+    private static async Task<IResult> Handle(ReceiptRepository repository, CancellationToken cancellationToken)
     {
-        IReadOnlyList<Receipt> receipts =
-        [
-            new("seed-1", "ICA Maxi", 482.50m, "SEK", new DateOnly(2026, 6, 1)),
-            new("seed-2", "Systembolaget", 199.00m, "SEK", new DateOnly(2026, 6, 3)),
-        ];
+        var receipts = await repository.GetAllAsync(cancellationToken);
         return Results.Ok(receipts);
     }
 }
