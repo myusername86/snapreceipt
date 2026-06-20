@@ -1,27 +1,46 @@
 import { useState, type FormEvent } from 'react';
 import { X } from 'lucide-react';
+import type { Receipt } from '../../../api/types';
 import { useAddReceipt } from '../useAddReceipt';
+import { useUpdateReceipt } from '../useUpdateReceipt';
 
-type AddReceiptFormProps = { onClose: () => void };
+type ReceiptFormProps = {
+  receipt?: Receipt;
+  onClose: () => void;
+};
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export function AddReceiptForm({ onClose }: AddReceiptFormProps) {
-  const [merchant, setMerchant] = useState('');
-  const [total, setTotal] = useState('');
-  const [currency, setCurrency] = useState('SEK');
-  const [purchasedOn, setPurchasedOn] = useState(today());
+export function ReceiptForm({ receipt, onClose }: ReceiptFormProps) {
+  const isEdit = receipt !== undefined;
+
+  const [merchant, setMerchant] = useState(receipt?.merchant ?? '');
+  const [total, setTotal] = useState(receipt ? String(receipt.total) : '');
+  const [currency, setCurrency] = useState(receipt?.currency ?? 'SEK');
+  const [purchasedOn, setPurchasedOn] = useState(receipt?.purchasedOn ?? today());
 
   const addReceipt = useAddReceipt();
+  const updateReceipt = useUpdateReceipt();
+  const mutation = isEdit ? updateReceipt : addReceipt;
+
   const canSubmit = merchant.trim() !== '' && Number(total) > 0;
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!canSubmit) return;
-    addReceipt.mutate(
-      { merchant: merchant.trim(), total: Number(total), currency, purchasedOn },
-      { onSuccess: onClose },
-    );
+
+    const values = {
+      merchant: merchant.trim(),
+      total: Number(total),
+      currency,
+      purchasedOn,
+    };
+
+    if (receipt) {
+      updateReceipt.mutate({ id: receipt.id, ...values }, { onSuccess: onClose });
+    } else {
+      addReceipt.mutate(values, { onSuccess: onClose });
+    }
   }
 
   return (
@@ -34,7 +53,7 @@ export function AddReceiptForm({ onClose }: AddReceiptFormProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Add receipt</h2>
+          <h2 className="text-lg font-semibold">{isEdit ? 'Edit receipt' : 'Add receipt'}</h2>
           <button
             onClick={onClose}
             aria-label="Close"
@@ -92,16 +111,16 @@ export function AddReceiptForm({ onClose }: AddReceiptFormProps) {
             />
           </div>
 
-          {addReceipt.isError && (
+          {mutation.isError && (
             <p className="text-sm text-red-400">Couldn’t save. Try again.</p>
           )}
 
           <button
             type="submit"
-            disabled={!canSubmit || addReceipt.isPending}
+            disabled={!canSubmit || mutation.isPending}
             className="mt-2 w-full rounded-xl bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
-            {addReceipt.isPending ? 'Saving…' : 'Save receipt'}
+            {mutation.isPending ? 'Saving…' : isEdit ? 'Update receipt' : 'Save receipt'}
           </button>
         </form>
       </div>

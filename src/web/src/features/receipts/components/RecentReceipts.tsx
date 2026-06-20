@@ -1,9 +1,13 @@
 import type { Receipt } from '../../../api/types';
 import { ReceiptRow } from './ReceiptRow';
 
-type RecentReceiptsProps = { receipts: Receipt[] };
+type RecentReceiptsProps = {
+  receipts: Receipt[];
+  onEdit: (receipt: Receipt) => void;
+  onDelete: (id: string) => void;
+};
 
-export function RecentReceipts({ receipts }: RecentReceiptsProps) {
+export function RecentReceipts({ receipts, onEdit, onDelete }: RecentReceiptsProps) {
   const sorted = [...receipts].sort((a, b) =>
     b.purchasedOn.localeCompare(a.purchasedOn),
   );
@@ -15,7 +19,14 @@ export function RecentReceipts({ receipts }: RecentReceiptsProps) {
         {sorted.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted">No receipts yet.</p>
         ) : (
-          sorted.map((receipt) => <ReceiptRow key={receipt.id} receipt={receipt} />)
+          sorted.map((receipt) => (
+            <ReceiptRow
+              key={receipt.id}
+              receipt={receipt}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))
         )}
       </div>
     </section>
