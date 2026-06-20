@@ -2,7 +2,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace SnapReceipt.Api.Features.Receipts;
 
-
+/// <summary>Reads and writes <see cref="Receipt"/> documents in Cosmos DB.</summary>
 public sealed class ReceiptRepository(Container container)
 {
     public async Task<IReadOnlyList<Receipt>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -21,4 +21,7 @@ public sealed class ReceiptRepository(Container container)
 
     public Task UpsertAsync(Receipt receipt, CancellationToken cancellationToken = default) =>
         container.UpsertItemAsync(receipt, new PartitionKey(receipt.Id), cancellationToken: cancellationToken);
+
+    public Task DeleteAsync(string id, CancellationToken cancellationToken = default) =>
+        container.DeleteItemAsync<Receipt>(id, new PartitionKey(id), cancellationToken: cancellationToken);
 }

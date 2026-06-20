@@ -9,6 +9,8 @@ public static class EndpointRouteBuilderExtensions
         var group = app.MapGroup("/api/receipts").WithTags("Receipts");
         GetReceiptsEndpoint.Map(group);
         CreateReceiptEndpoint.Map(group);
+        UpdateReceiptEndpoint.Map(group);   
+        DeleteReceiptEndpoint.Map(group); 
         return app;
     }
 }
