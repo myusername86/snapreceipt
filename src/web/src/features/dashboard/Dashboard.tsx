@@ -66,10 +66,8 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-base text-ink">
       <div className="mx-auto max-w-md px-5 pb-10">
-        <div className="flex items-center justify-between pt-4">
-          <DashboardHeader />
-          <LanguageSwitcher />
-        </div>
+        <DashboardHeader actions={<LanguageSwitcher />} />
+      
         <Greeting name="Uvarani" />
         {isLoading && <p className="mt-6 text-sm text-muted">{t('loading')}</p>}
         {isError && <p className="mt-6 text-sm text-red-400">{t('load_error')}</p>}
