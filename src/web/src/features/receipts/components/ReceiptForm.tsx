@@ -4,26 +4,49 @@ import type { Receipt } from '../../../api/types';
 import { useAddReceipt } from '../useAddReceipt';
 import { useUpdateReceipt } from '../useUpdateReceipt';
 
+type InitialValues = {
+  merchant?: string;
+  total?: number;
+  currency?: string;
+  purchasedOn?: string;
+};
+
 type ReceiptFormProps = {
   receipt?: Receipt;
+  initialValues?: InitialValues;
   onClose: () => void;
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export function ReceiptForm({ receipt, onClose }: ReceiptFormProps) {
+export function ReceiptForm({ receipt, initialValues, onClose }: ReceiptFormProps) {
   const isEdit = receipt !== undefined;
+  const isScanned = !isEdit && initialValues !== undefined;
 
-  const [merchant, setMerchant] = useState(receipt?.merchant ?? '');
-  const [total, setTotal] = useState(receipt ? String(receipt.total) : '');
-  const [currency, setCurrency] = useState(receipt?.currency ?? 'SEK');
-  const [purchasedOn, setPurchasedOn] = useState(receipt?.purchasedOn ?? today());
+  const [merchant, setMerchant] = useState(
+    receipt?.merchant ?? initialValues?.merchant ?? '',
+  );
+  const [total, setTotal] = useState(
+    receipt
+      ? String(receipt.total)
+      : initialValues?.total != null
+        ? String(initialValues.total)
+        : '',
+  );
+  const [currency, setCurrency] = useState(
+    receipt?.currency ?? initialValues?.currency ?? 'SEK',
+  );
+  const [purchasedOn, setPurchasedOn] = useState(
+    receipt?.purchasedOn ?? initialValues?.purchasedOn ?? today(),
+  );
 
   const addReceipt = useAddReceipt();
   const updateReceipt = useUpdateReceipt();
   const mutation = isEdit ? updateReceipt : addReceipt;
 
   const canSubmit = merchant.trim() !== '' && Number(total) > 0;
+
+  const title = isEdit ? 'Edit receipt' : isScanned ? 'Review receipt' : 'Add receipt';
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -53,7 +76,7 @@ export function ReceiptForm({ receipt, onClose }: ReceiptFormProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{isEdit ? 'Edit receipt' : 'Add receipt'}</h2>
+          <h2 className="text-lg font-semibold">{title}</h2>
           <button
             onClick={onClose}
             aria-label="Close"
@@ -62,6 +85,12 @@ export function ReceiptForm({ receipt, onClose }: ReceiptFormProps) {
             <X className="h-4 w-4" />
           </button>
         </div>
+
+        {isScanned && (
+          <p className="mt-2 text-xs text-muted">
+            Read from your photo — check the values, then save.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
           <div>
@@ -94,9 +123,14 @@ export function ReceiptForm({ receipt, onClose }: ReceiptFormProps) {
                 onChange={(e) => setCurrency(e.target.value)}
                 className="mt-1 w-full rounded-xl bg-surface-2 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand"
               >
+            
                 <option value="SEK">SEK</option>
-                <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="INR">INR</option>
+                <option value="NOK">NOK</option>
+                <option value="DKK">DKK</option>
               </select>
             </div>
           </div>
