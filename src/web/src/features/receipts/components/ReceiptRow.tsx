@@ -1,6 +1,6 @@
 import { Trash2 } from 'lucide-react';
 import type { Receipt } from '../../../api/types';
-import { formatSEK, formatDate } from '../../../lib/format';
+import { formatSEK, formatMoney, formatDate } from '../../../lib/format';
 
 type ReceiptRowProps = {
   receipt: Receipt;
@@ -10,6 +10,8 @@ type ReceiptRowProps = {
 
 export function ReceiptRow({ receipt, onEdit, onDelete }: ReceiptRowProps) {
   const initial = receipt.merchant.charAt(0).toUpperCase();
+  const sekValue = receipt.totalSek ?? receipt.total;
+  const isForeign = receipt.currency !== 'SEK';
 
   return (
     <div className="flex items-center gap-2 py-3">
@@ -24,7 +26,14 @@ export function ReceiptRow({ receipt, onEdit, onDelete }: ReceiptRowProps) {
           <p className="text-sm font-medium">{receipt.merchant}</p>
           <p className="text-xs text-muted">{formatDate(receipt.purchasedOn)}</p>
         </div>
-        <p className="text-sm font-semibold">{formatSEK(receipt.total)}</p>
+        <div className="text-right">
+          <p className="text-sm font-semibold">{formatSEK(sekValue)}</p>
+          {isForeign && (
+            <p className="text-xs text-muted">
+              {formatMoney(receipt.total, receipt.currency)}
+            </p>
+          )}
+        </div>
       </button>
       <button
         onClick={() => onDelete(receipt.id)}
