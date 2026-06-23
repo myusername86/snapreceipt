@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Camera, Plus } from 'lucide-react';
 import { DashboardHeader } from './components/DashboardHeader';
 import { Greeting } from './components/Greeting';
 import { SummaryCards } from './components/SummaryCards';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { Toast } from '../receipts/components/Toast';
 import { RecentReceipts } from '../receipts/components/RecentReceipts';
 import { ReceiptForm } from '../receipts/components/ReceiptForm';
@@ -14,6 +16,7 @@ import { deriveStats } from '../../lib/stats';
 import type { Receipt } from '../../api/types';
 
 export function Dashboard() {
+  const { t } = useTranslation();
   const { data: receipts, isLoading, isError } = useReceipts();
   const { receipts: receiptsSek, isConverting } = useReceiptsInSek(receipts ?? []);
   const stats = useMemo(() => deriveStats(receiptsSek), [receiptsSek]);
@@ -63,15 +66,18 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-base text-ink">
       <div className="mx-auto max-w-md px-5 pb-10">
-        <DashboardHeader />
+        <div className="flex items-center justify-between pt-4">
+          <DashboardHeader />
+          <LanguageSwitcher />
+        </div>
         <Greeting name="Uvarani" />
-        {isLoading && <p className="mt-6 text-sm text-muted">Loading…</p>}
-        {isError && <p className="mt-6 text-sm text-red-400">Couldn’t load receipts.</p>}
+        {isLoading && <p className="mt-6 text-sm text-muted">{t('loading')}</p>}
+        {isError && <p className="mt-6 text-sm text-red-400">{t('load_error')}</p>}
         {!isLoading && !isError && (
           <>
             <SummaryCards stats={stats} />
             {isConverting && (
-              <p className="mt-2 text-xs text-muted">Converting currencies to SEK…</p>
+              <p className="mt-2 text-xs text-muted">{t('converting')}</p>
             )}
 
             <input
@@ -90,18 +96,18 @@ export function Dashboard() {
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-50"
               >
                 <Camera className="h-4 w-4" />
-                {isScanning ? 'Reading…' : 'Scan receipt'}
+                {isScanning ? t('reading') : t('scan_receipt')}
               </button>
               <button
                 onClick={openAdd}
                 className="flex items-center justify-center gap-2 rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-semibold text-ink"
               >
                 <Plus className="h-4 w-4" />
-                Add
+                {t('add')}
               </button>
             </div>
 
-            {scanError && <p className="mt-2 text-sm text-red-400">{scanError}</p>}
+            {scanError && <p className="mt-2 text-sm text-red-400">{t('scan_error')}</p>}
 
             <RecentReceipts
               receipts={receiptsSek}
@@ -120,8 +126,8 @@ export function Dashboard() {
       )}
       {pending && (
         <Toast
-          message={`Deleted "${pending.merchant}"`}
-          actionLabel="Undo"
+          message={t('deleted', { merchant: pending.merchant })}
+          actionLabel={t('undo')}
           onAction={undo}
         />
       )}
