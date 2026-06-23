@@ -3,7 +3,6 @@ import type { Receipt } from '../../api/types';
 import { fetchSekRate } from '../../lib/fx';
 
 export function useReceiptsInSek(receipts: Receipt[]) {
-  // unique currency+date pairs that actually need conversion
   const pairs = Array.from(
     new Set(
       receipts
@@ -16,12 +15,17 @@ export function useReceiptsInSek(receipts: Receipt[]) {
     queryKey: ['fx-rates', [...pairs].sort().join(',')],
     enabled: pairs.length > 0,
     staleTime: Infinity, // historical rates never change
+    retry: 1,
     queryFn: async () => {
       const entries = await Promise.all(
         pairs.map(async (pair) => {
           const [currency, date] = pair.split('|');
-          const rate = await fetchSekRate(currency, date);
-          return [pair, rate] as const;
+          try {
+            const rate = await fetchSekRate(currency, date);
+            return [pair, rate] as const;
+          } catch {
+            return [pair, null] as const; // one failure won't block the rest
+          }
         }),
       );
       return new Map(entries);

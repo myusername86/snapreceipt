@@ -1,7 +1,8 @@
-// Converts a foreign amount to SEK using the European Central Bank rate on a
-// given date (free Frankfurter API, no key). Past rates are fixed, so the same
-// date always yields the same result.
+// Converts a foreign amount to SEK using the European Central Bank rate
+// (free Frankfurter API, no key). Dates on/after today use the latest
+// published rate, since today's rate may not be out yet (~16:00 CET).
 type FrankfurterResponse = {
+  amount: number;
   base: string;
   date: string;
   rates: Record<string, number>;
@@ -10,17 +11,17 @@ type FrankfurterResponse = {
 export async function fetchSekRate(currency: string, date: string): Promise<number> {
   if (currency === 'SEK') return 1;
 
-  const res = await fetch(`https://api.frankfurter.dev/v1/${date}`);
+  const today = new Date().toISOString().slice(0, 10);
+  const when = date >= today ? 'latest' : date;
+
+  const res = await fetch(
+    `https://api.frankfurter.dev/v1/${when}?base=${currency}&symbols=SEK`,
+  );
   if (!res.ok) throw new Error(`FX lookup failed (${res.status})`);
 
   const data = (await res.json()) as FrankfurterResponse;
-  const sekPerEur = data.rates?.SEK;
-  const currencyPerEur = data.rates?.[currency];
+  const rate = data.rates?.SEK;
+  if (typeof rate !== 'number') throw new Error(`No SEK rate for ${currency}`);
 
-  if (typeof sekPerEur !== 'number' || typeof currencyPerEur !== 'number') {
-    throw new Error(`No rate for ${currency} on ${date}`);
-  }
-
-  // rates are EUR-based; cross-convert to SEK per 1 unit of `currency`
-  return sekPerEur / currencyPerEur;
+  return rate; // SEK per 1 unit of `currency`
 }
