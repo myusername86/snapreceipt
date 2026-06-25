@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import { useCurrentUser } from '../../auth/useCurrentUser';
 
-type GreetingProps = { name: string };
-
-export function Greeting({ name }: GreetingProps) {
+export function Greeting() {
   const { t } = useTranslation();
+  const { name } = useCurrentUser();
   const hour = new Date().getHours();
   const key =
     hour < 12 ? 'greeting_morning' : hour < 18 ? 'greeting_afternoon' : 'greeting_evening';

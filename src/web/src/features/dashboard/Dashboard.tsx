@@ -68,7 +68,7 @@ export function Dashboard() {
       <div className="mx-auto max-w-md px-5 pb-10">
         <DashboardHeader actions={<LanguageSwitcher />} />
       
-        <Greeting name="Uvarani" />
+        <Greeting/>
         {isLoading && <p className="mt-6 text-sm text-muted">{t('loading')}</p>}
         {isError && <p className="mt-6 text-sm text-red-400">{t('load_error')}</p>}
         {!isLoading && !isError && (
