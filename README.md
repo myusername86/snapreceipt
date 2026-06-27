@@ -26,8 +26,6 @@
 > Sign up with any email to try it — your data is private to your account.
 
 
----
-
 ## ✨ What it is
 
 SnapReceipt is a full-stack web app that turns the chore of expense tracking into a few taps. You photograph a receipt, **Azure AI extracts the merchant, total, and date automatically**, foreign-currency amounts are **converted to a home currency using the exchange rate on the receipt's date**, and everything is tracked on a clean, multilingual dashboard — behind **real consumer authentication** where each user only ever sees their own data.
@@ -187,8 +185,10 @@ Planned next steps (each its own branch/PR):
 ## 👤 Contact
 
 
+
 **[Uvarani Pandian]** — Full-Stack Developer (.NET · React · Azure)
 [LinkedIn](https://www.linkedin.com/in/uvarani-pandian-b4269565/) · [Email](pyuvarani.2011@gmail.com)
 
 
 <p align="center"><i>Built as a portfolio project to demonstrate production-style full-stack engineering on Azure.</i></p>
+
