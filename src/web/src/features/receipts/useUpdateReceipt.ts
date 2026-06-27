@@ -1,29 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Receipt } from '../../api/types';
-
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api`;
-
-async function putReceipt(receipt: Receipt): Promise<Receipt> {
-  const response = await fetch(`${BASE_URL}/receipts/${receipt.id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      merchant: receipt.merchant,
-      total: receipt.total,
-      currency: receipt.currency,
-      purchasedOn: receipt.purchasedOn,
-    }),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update receipt');
-  }
-  return response.json();
-}
+import { receiptsApi } from '../../api/client';
 
 export function useUpdateReceipt() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: putReceipt,
+    mutationFn: (receipt: Receipt) =>
+      receiptsApi.update(receipt.id, {
+        merchant: receipt.merchant,
+        total: receipt.total,
+        currency: receipt.currency,
+        purchasedOn: receipt.purchasedOn,
+      }),
     onMutate: async (updated) => {
       await queryClient.cancelQueries({ queryKey: ['receipts'] });
       const previous = queryClient.getQueryData<Receipt[]>(['receipts']);

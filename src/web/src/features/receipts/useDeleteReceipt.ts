@@ -1,19 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Receipt } from '../../api/types';
-
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api`;
-
-async function deleteReceipt(id: string): Promise<void> {
-  const response = await fetch(`${BASE_URL}/receipts/${id}`, { method: 'DELETE' });
-  if (!response.ok) {
-    throw new Error('Failed to delete receipt');
-  }
-}
+import { receiptsApi } from '../../api/client';
 
 export function useDeleteReceipt() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteReceipt,
+    mutationFn: (id: string) => receiptsApi.remove(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['receipts'] });
       const previous = queryClient.getQueryData<Receipt[]>(['receipts']);

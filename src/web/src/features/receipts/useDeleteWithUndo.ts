@@ -1,14 +1,9 @@
 import { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Receipt } from '../../api/types';
+import { receiptsApi } from '../../api/client';
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api`;
 const UNDO_MS = 5000;
-
-async function serverDelete(id: string): Promise<void> {
-  const res = await fetch(`${BASE_URL}/receipts/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Failed to delete receipt');
-}
 
 export function useDeleteWithUndo() {
   const queryClient = useQueryClient();
@@ -28,7 +23,8 @@ export function useDeleteWithUndo() {
   }
 
   function commit(receipt: Receipt) {
-    void serverDelete(receipt.id)
+    void receiptsApi
+      .remove(receipt.id)
       .then(() => queryClient.invalidateQueries({ queryKey: ['receipts'] }))
       .catch(() => restoreToCache(receipt));
   }
