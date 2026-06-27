@@ -25,12 +25,6 @@
 > **Live:** https://thankful-dune-03b097403.7.azurestaticapps.net
 > Sign up with any email to try it — your data is private to your account.
 
-<!-- 📸 SCREENSHOT: replace with a hero shot of the dashboard. See the "Screenshots" section below for the file to add. -->
-<p align="center">
-  <img src="docs/dashboard.png" alt="SnapReceipt dashboard" width="700" />
-</p>
-
----
 
 ## ✨ What it is
 
@@ -191,8 +185,10 @@ Planned next steps (each its own branch/PR):
 ## 👤 Contact
 
 
-**[Your Name]** — Full-Stack Developer (.NET · React · Azure)
+
+**[Uvarani Pandian]** — Full-Stack Developer (.NET · React · Azure)
 [LinkedIn](https://www.linkedin.com/in/uvarani-pandian-b4269565/) · [Email](pyuvarani.2011@gmail.com)
 
 
 <p align="center"><i>Built as a portfolio project to demonstrate production-style full-stack engineering on Azure.</i></p>
+
