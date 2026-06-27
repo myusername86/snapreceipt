@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 using System.Text.Json;
 using Microsoft.Azure.Cosmos;
 using Scalar.AspNetCore;
@@ -18,6 +20,19 @@ builder.Services.AddCors(options =>
             "https://thankful-dune-03b097403.7.azurestaticapps.net")
         .AllowAnyHeader()
         .AllowAnyMethod()));
+
+// --- Authentication (Microsoft Entra External ID) ---
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.Configure<JwtBearerOptions>(
+    JwtBearerDefaults.AuthenticationScheme,
+    options =>
+    {
+        options.TokenValidationParameters.ValidAudiences = AuthConstants.ValidApiAudiences;
+    });
+
+builder.Services.AddAuthorization();
 
 // --- Cosmos DB ---
 var cosmosConnectionString = builder.Configuration["Cosmos:ConnectionString"]
@@ -44,7 +59,10 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+
 app.UseCors(FrontendCors);
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -55,17 +73,22 @@ if (app.Environment.IsDevelopment())
 app.MapHealthChecks("/health");
 app.MapReceiptEndpoints();
 
-// --- Ensure the database/container exist, then seed sample data ---
+// --- Ensure the database/container exist ---
 using (var scope = app.Services.CreateScope())
 {
     var cosmosClient = scope.ServiceProvider.GetRequiredService<CosmosClient>();
     var database = await cosmosClient.CreateDatabaseIfNotExistsAsync(cosmosDatabaseName);
     await database.Database.CreateContainerIfNotExistsAsync(cosmosContainerName, "/id");
-
-    var repository = scope.ServiceProvider.GetRequiredService<ReceiptRepository>();
-    await ReceiptSeeder.EnsureSeededAsync(repository);
 }
 
 app.Run();
 
+static class AuthConstants
+{
+    public static readonly string[] ValidApiAudiences =
+    [
+        "api://89a707f8-048f-4d18-911b-4cb5863b7a4c",
+        "89a707f8-048f-4d18-911b-4cb5863b7a4c",
+    ];
+}
 public partial class Program;

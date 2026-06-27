@@ -1,6 +1,9 @@
+using System.Security.Claims;
+using Microsoft.Identity.Web;
+
 namespace SnapReceipt.Api.Features.Receipts;
 
-/// <summary>PUT /api/receipts/{id} — updates an existing receipt in Cosmos DB.</summary>
+/// <summary>PUT /api/receipts/{id} — updates a receipt the signed-in user owns.</summary>
 public static class UpdateReceiptEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
@@ -15,14 +18,25 @@ public static class UpdateReceiptEndpoint
         string id,
         UpdateReceiptRequest request,
         ReceiptRepository repository,
+        ClaimsPrincipal user,
         CancellationToken cancellationToken)
     {
+        var userId = user.GetObjectId();
+        if (string.IsNullOrEmpty(userId))
+            return Results.Unauthorized();
+
+        // Only allow updating a receipt the caller actually owns.
+        var existing = await repository.GetByIdAsync(id, userId, cancellationToken);
+        if (existing is null)
+            return Results.NotFound();
+
         var receipt = new Receipt(
             Id: id,
             Merchant: request.Merchant,
             Total: request.Total,
             Currency: request.Currency,
-            PurchasedOn: request.PurchasedOn);
+            PurchasedOn: request.PurchasedOn,
+            UserId: userId);
 
         await repository.UpsertAsync(receipt, cancellationToken);
 

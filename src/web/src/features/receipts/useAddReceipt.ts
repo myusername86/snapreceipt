@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Receipt } from '../../api/types';
-
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api`;
+import { receiptsApi } from '../../api/client';
 
 export type NewReceipt = {
   merchant: string;
@@ -10,23 +9,11 @@ export type NewReceipt = {
   purchasedOn: string;
 };
 
-async function postReceipt(input: NewReceipt): Promise<Receipt> {
-  const response = await fetch(`${BASE_URL}/receipts`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save receipt');
-  }
-  return response.json();
-}
-
 export function useAddReceipt() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: postReceipt,
+    mutationFn: (input: NewReceipt) => receiptsApi.create(input),
     onMutate: async (input) => {
       await queryClient.cancelQueries({ queryKey: ['receipts'] });
       const previous = queryClient.getQueryData<Receipt[]>(['receipts']);

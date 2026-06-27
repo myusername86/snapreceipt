@@ -1,6 +1,9 @@
+using System.Security.Claims;
+using Microsoft.Identity.Web;
+
 namespace SnapReceipt.Api.Features.Receipts;
 
-/// <summary>GET /api/receipts — returns the user's receipts from Cosmos DB.</summary>
+/// <summary>GET /api/receipts — returns the signed-in user's receipts from Cosmos DB.</summary>
 public static class GetReceiptsEndpoint
 {
     public static void Map(IEndpointRouteBuilder group)
@@ -10,9 +13,16 @@ public static class GetReceiptsEndpoint
             .Produces<IReadOnlyList<Receipt>>();
     }
 
-    private static async Task<IResult> Handle(ReceiptRepository repository, CancellationToken cancellationToken)
+    private static async Task<IResult> Handle(
+        ReceiptRepository repository,
+        ClaimsPrincipal user,
+        CancellationToken cancellationToken)
     {
-        var receipts = await repository.GetAllAsync(cancellationToken);
+        var userId = user.GetObjectId();
+        if (string.IsNullOrEmpty(userId))
+            return Results.Unauthorized();
+
+        var receipts = await repository.GetAllAsync(userId, cancellationToken);
         return Results.Ok(receipts);
     }
 }
