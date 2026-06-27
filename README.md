@@ -85,8 +85,23 @@ flowchart TD
 ---
 
 ## 📸 Screenshots
+### 🔐 Sign in
+![Sign in screen](docs/signin.png)
 
-![alt text](UpdateReceipt.png) ![alt text](AddReceipt.png) ![alt text](Dashboard_prefill.png) ![alt text](DeleteUndo.png) ![alt text](Multilanguage.png) ![alt text](ReceiptAdded.png) ![alt text](signin.png) ![alt text](UpdatedReceipt.png)
+### 📊 Dashboard
+![Dashboard](docs/Dashboard_prefill.png)
+
+### ➕ Add a receipt
+![Add receipt](docs/AddReceipt.png)
+
+### ✏️ Edit a receipt
+![Update receipt](docs/UpdateReceipt.png)
+
+### 🗑️ Delete with undo
+![Delete with undo](docs/DeleteUndo.png)
+
+### 🌍 Multiple languages
+![Multi-language](docs/Multilanguage.png)
 
 ## 🔑 Key Features
 
